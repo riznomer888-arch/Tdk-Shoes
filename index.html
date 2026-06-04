@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDK SHOES — Премиальный онлайн-бутик</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. Верхняя тонкая строка объявлений (как на референсе) -->
+    <div class="top-promo-bar">
+        ЛЕТНЯЯ РАСПРОДАЖА | ДО 40% СКИДКИ НА ВЫБРАННЫЕ ТОВАРЫ | ДОСТАВКА ПО КАЗАХСТАНУ
+    </div>
+
+    <!-- 2. Минималистичная главная шапка -->
+    <header>
+        <div class="header-container">
+            <!-- Левое подменю -->
+            <nav class="sub-nav">
+                <ul>
+                    <li><a href="#" id="nav-all" class="active" onclick="changeCategory('all')">Все бренды</a></li>
+                    <li><a href="#" id="nav-shoes" onclick="changeCategory('shoes')">Обувь</a></li>
+                    <li><a href="#" id="nav-clothes" onclick="changeCategory('clothes')">Одежда</a></li>
+                    <li><a href="#" id="nav-jeans" onclick="changeCategory('jeans')">Джинсы</a></li>
+                </ul>
+            </nav>
+
+            <!-- Центральный логотип в стиле VITKAC -->
+            <div class="main-logo" onclick="changeCategory('all')">
+                TDK<span>.</span>COM
+            </div>
+
+            <!-- Правая панель (Поиск и иконки) -->
+            <div class="header-right">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Поиск вещей...">
+                </div>
+                <div class="header-icons">
+                    <span class="icon">👤</span>
+                    <span class="icon">🖤</span>
+                    <span class="icon">🛍️ <small id="cart-count">0</small></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 3. Большие промо-баннеры (как в 2026-06-04 (18).jpg) -->
+    <section class="hero-banners">
+        <div class="banner-box male-banner" onclick="changeCategory('shoes')">
+            <div class="banner-overlay">
+                <h2>OБУВЬ</h2>
+                <span>Смотреть коллекцию</span>
+            </div>
+        </div>
+        <div class="banner-box female-banner" onclick="changeCategory('clothes')">
+            <div class="banner-overlay">
+                <h2>ОДЕЖДА</h2>
+                <span>Смотреть коллекцию</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Секция каталога -->
+    <main>
+        <div class="catalog-header">
+            <h1 id="page-title">Новинки от TDK</h1>
+            <p class="catalog-subtitle">Брендовые и эксклюзивные коллекции одежды и обуви</p>
+        </div>
+
+        <!-- Сетка товаров (динамически заполняется из JS) -->
+        <div class="products-grid" id="products-container"></div>
+    </main>
+
+    <!-- 5. Подвал (Footer) -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>TDK.COM</h3>
+                <p>Ваш гид в мире высокой уличной моды и эксклюзивного дропа кроссовок в Казахстане.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Помощь</h3>
+                <p>Доставка и оплата</p>
+                <p>Возврат товара</p>
+            </div>
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <p>Талдыкорган, Центр</p>
+                <p>Telegram: @TDK_SHOES</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 TDK.COM. Все права защищены.
+        </div>
+    </footer>
+
+    <!-- 6. Премиальное Модальное Окно Заказа -->
+    <div class="modal-overlay" id="order-modal">
+        <div class="modal-content">
+            <button type="button" class="modal-close" onclick="closeOrderModal()">&times;</button>
+            <span class="modal-badge">Оформление заказа</span>
+            <h2 class="modal-title" id="modal-product-name">Название товара</h2>
+            <div class="modal-price" id="modal-product-price">0 ₸</div>
+
+            <form id="order-form">
+                <div class="form-group">
+                    <label>Выберите доступный размер</label>
+                    <div class="sizes-selector" id="modal-sizes-container">
+                        <!-- Кнопки размеров вставит JS -->
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Ваше Имя</label>
+                    <input type="text" id="client-name" required placeholder="Например: Арман">
+                </div>
+
+                <div class="form-group">
+                    <label>Телефон / Telegram</label>
+                    <input type="text" id="client-contact" required placeholder="Например: +7 707 ...">
+                </div>
+
+                <div class="form-group">
+                    <label>Адрес доставки</label>
+                    <input type="text" id="client-address" required placeholder="Город, улица, дом">
+                </div>
+
+                <button type="submit" class="submit-btn">Добавить в корзину</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

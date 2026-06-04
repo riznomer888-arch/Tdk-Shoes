@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tdk shoes — Минималистичный онлайн-магазин</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo" onclick="changeCategory('all')">tdk shoes</div>
+            <nav>
+                <ul>
+                    <li><a href="#" id="nav-all" class="active" onclick="changeCategory('all')">Все</a></li>
+                    <li><a href="#" id="nav-shoes" onclick="changeCategory('shoes')">Обувь</a></li>
+                    <li><a href="#" id="nav-clothes" onclick="changeCategory('clothes')">Одежда</a></li>
+                    <li><a href="#" id="nav-jeans" onclick="changeCategory('jeans')">Джинсы</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="category-tools">
+            <h1 class="category-title" id="page-title">Все товары</h1>
+            <div class="search-wrapper">
+                <input type="text" id="search-input" class="search-input" placeholder="Поиск в этом разделе..." oninput="handleSearch()">
+            </div>
+        </div>
+
+        <div class="products-grid" id="products-container">
+            </div>
+    </main>
+
+    <script>
+        // БАЗА ДАННЫХ ТОВАРОВ (Вынесена в этот же файл для удобства)
+        const products = [
+            {
+                id: 1,
+                name: "Кроссовки Minimal White S1",
+                category: "shoes",
+                price: "8,900 ₽",
+                sizes: { "41": 2, "42": 5, "43": 1 }
+            },
+            {
+                id: 2,
+                name: "Белая оверсайз футболка Cotton",
+                category: "clothes",
+                price: "3,200 ₽",
+                sizes: { "S": 3, "M": 4, "L": 0 }
+            },
+            {
+                id: 3,
+                name: "Джинсы Прямого Кроя Light Blue",
+                category: "jeans",
+                price: "6,500 ₽",
+                sizes: { "30": 0, "32": 0, "34": 0 } // Имитация отсутствия товара
+            },
+            {
+                id: 4,
+                name: "Кожаные кеды Classic Low",
+                category: "shoes",
+                price: "11,200 ₽",
+                sizes: { "40": 1, "41": 0, "42": 0 }
+            },
+            {
+                id: 5,
+                name: "Хлопковый лонгслив Off-White",
+                category: "clothes",
+                price: "4,000 ₽",
+                sizes: { "M": 2, "L": 1 }
+            },
+            {
+                id: 6,
+                name: "Джинсы Черные Slim Fit",
+                category: "jeans",
+                price: "5,900 ₽",
+                sizes: { "31": 1, "32": 2, "33": 0 }
+            },
+            {
+                id: 7,
+                name: "Летние сандалии Air Sandal",
+                category: "shoes",
+                price: "7,400 ₽",
+                sizes: { "39": 0, "40": 0 } // Имитация отсутствия товара
+            }
+        ];
+
+        let currentCategory = 'all';
+        let searchQuery = '';
+
+        // Проверка наличия (считает общую сумму всех размеров)
+        function checkInStock(product) {
+            const totalQuantity = Object.values(product.sizes).reduce((sum, current) => sum + current, 0);
+            return totalQuantity > 0;
+        }
+
+        // Отрисовка товаров
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            container.innerHTML = '';
+
+            // Фильтр по разделу
+            let filtered = products;
+            if (currentCategory !== 'all') {
+                filtered = products.filter(p => p.category === currentCategory);
+            }
+
+            // Фильтр по поиску
+            if (searchQuery.trim() !== '') {
+                filtered = filtered.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="no-results">По вашему запросу ничего не найдено.</div>`;
+                return;
+            }
+
+            // Рендер карточек
+            filtered.forEach(product => {
+                const inStock = checkInStock(product);
+                const statusClass = inStock ? 'status-in-stock' : 'status-out-stock';
+                const statusText = inStock ? 'В наличии' : 'Нет в наличии';
+                const cardClass = inStock ? 'product-card' : 'product-card out-of-stock';
+
+                const productHTML = `
+                    <div class="${cardClass}">
+                        <div class="product-image-wrapper">
+                            <div class="product-placeholder-img"></div>
+                        </div>
+                        <div class="product-info">
+                            <span class="product-name">${product.name}</span>
+                            <span class="product-price">${product.price}</span>
+                            <span class="availability-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += productHTML;
+            });
+        }
+
+        // Переключение вкладок меню
+        function changeCategory(category) {
+            currentCategory = category;
+            searchQuery = '';
+            document.getElementById('search-input').value = '';
+
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            document.getElementById(`nav-${category}`).classList.add('active');
+
+            const titles = { 'all': 'Все товары', 'shoes': 'Обувь', 'clothes': 'Одежда', 'jeans': 'Джинсы' };
+            document.getElementById('page-title').textContent = titles[category];
+
+            renderProducts();
+        }
+
+        // "Живой" поиск
+        function handleSearch() {
+            searchQuery = document.getElementById('search-input').value;
+            renderProducts();
+        }
+
+        window.onload = renderProducts;
+    </script>
+</body>
+</html>

@@ -1,173 +1,246 @@
-// Используем строгий режим для избежания скрытых ошибок в коде
 "use strict";
 
-// БАЗА ДАННЫХ ТОВАРОВ
+// БАЗА ДАННЫХ ТОВАРОВ (Цены в тенге + размеры)
 const PRODUCTS_DATA = [
-    {
-        id: 1,
-        name: "Кроссовки Minimal White S1",
-        category: "shoes",
-        price: "8,900 ₽",
-        sizes: { "41": 2, "42": 5, "43": 1 }
-    },
-    {
-        id: 2,
-        name: "Белая оверсайз футболка Cotton",
-        category: "clothes",
-        price: "3,200 ₽",
-        sizes: { "S": 3, "M": 4, "L": 0 }
-    },
-    {
-        id: 3,
-        name: "Джинсы Прямого Кроя Light Blue",
-        category: "jeans",
-        price: "6,500 ₽",
-        sizes: { "30": 0, "32": 0, "34": 0 }
-    },
-    {
-        id: 4,
-        name: "Кожаные кеды Classic Low",
-        category: "shoes",
-        price: "11,200 ₽",
-        sizes: { "40": 1, "41": 0, "42": 0 }
-    },
-    {
-        id: 5,
-        name: "Хлопковый лонгслив Off-White",
-        category: "clothes",
-        price: "4,000 ₽",
-        sizes: { "M": 2, "L": 1 }
-    },
-    {
-        id: 6,
-        name: "Джинсы Черные Slim Fit",
-        category: "jeans",
-        price: "5,900 ₽",
-        sizes: { "31": 1, "32": 2, "33": 0 }
-    },
-    {
-        id: 7,
-        name: "Летние сандалии Air Sandal",
-        category: "shoes",
-        price: "7,400 ₽",
-        sizes: { "39": 0, "40": 0 }
-    }
+    { id: 1, name: "Кроссовки Street Air S1 Black", category: "shoes", price: "45,000 ₸", sizes: { "41": 2, "42": 5, "43": 1 } },
+    { id: 2, name: "Оверсайз худи TDK Cargo", category: "clothes", price: "18,500 ₸", sizes: { "S": 3, "M": 4, "L": 0 } },
+    { id: 3, name: "Джинсы Прямого Кроя Light Denim", category: "jeans", price: "24,000 ₸", sizes: { "30": 0, "32": 0, "34": 0 } },
+    { id: 4, name: "Кеды Classic Custom Orange", category: "shoes", price: "38,000 ₸", sizes: { "40": 1, "41": 4, "42": 0 } },
+    { id: 5, name: "Футболка Basic Heavyweight White", category: "clothes", price: "9,900 ₸", sizes: { "M": 6, "L": 3 } },
+    { id: 6, name: "Джинсы Черные Graphite Slim", category: "jeans", price: "26,500 ₸", sizes: { "31": 1, "32": 2, "33": 0 } }
 ];
 
-// Изолированное состояние приложения (App State)
-const appState = {
+// Единый источник правды (Состояние сайта)
+const state = {
     currentCategory: 'all',
-    searchQuery: ''
+    searchQuery: '',
+    selectedSize: null,
+    currentProduct: null
 };
 
-// Функция безопасного отображения текста (защита от XSS-атак в поиске или названиях)
-function escapeHTML(str) {
-    return str.replace(/[&<>'"]/g, 
-        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-    );
-}
+// Хелпер для безопасного вывода текста (Защита от XSS-атак)
+const escapeHTML = (str) => {
+    if (typeof str !== 'string') return '';
+    return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+    }[tag] || tag));
+};
 
-// Оптимальная проверка наличия товара на складе через .some()
-function checkInStock(product) {
-    // Если хотя бы у одного размера количество больше нуля, товар в наличии
-    return Object.values(product.sizes).some(quantity => quantity > 0);
-}
+// Проверка: остался ли товар хотя бы в одном размере
+const isProductInStock = (product) => {
+    return product && product.sizes ? Object.values(product.sizes).some(qty => qty > 0) : false;
+};
 
-// Эффективная генерация HTML-строки для карточки товара
-function createProductCardHTML(product) {
-    const inStock = checkInStock(product);
-    const statusClass = inStock ? 'status-in-stock' : 'status-out-stock';
-    const statusText = inStock ? 'В наличии' : 'Нет в наличии';
-    const cardClass = inStock ? 'product-card' : 'product-card out-of-stock';
-
+// Генерация HTML-шаблона карточки
+const createProductCardHTML = (product) => {
+    if (!product) return '';
+    const inStock = isProductInStock(product);
+    
     return `
-        <div class="${cardClass}" data-id="${product.id}">
+        <div class="product-card ${inStock ? '' : 'out-of-stock'}" onclick="openOrderModal(${Number(product.id)})">
             <div class="product-image-wrapper">
-                <div class="product-placeholder-img"></div>
+                <div class="product-logo-bg"></div>
             </div>
             <div class="product-info">
                 <span class="product-name">${escapeHTML(product.name)}</span>
-                <span class="product-price">${escapeHTML(product.price)}</span>
-                <span class="availability-badge ${statusClass}">${statusText}</span>
+                <div class="product-meta">
+                    <span class="product-price">${escapeHTML(product.price)}</span>
+                    <span class="availability-badge ${inStock ? 'status-in-stock' : 'status-out-stock'}">
+                        ${inStock ? 'В наличии' : 'Ожидается'}
+                    </span>
+                </div>
             </div>
         </div>
     `;
-}
+};
 
-// Главная функция рендеринга интерфейса
+// Отображение каталога
 function renderProducts() {
     const container = document.getElementById('products-container');
     if (!container) return;
 
-    // 1. Фильтрация по категории через метод массивов
-    let filteredProducts = PRODUCTS_DATA;
-    if (appState.currentCategory !== 'all') {
-        filteredProducts = PRODUCTS_DATA.filter(p => p.category === appState.currentCategory);
+    let filtered = [...PRODUCTS_DATA];
+
+    if (state.currentCategory !== 'all') {
+        filtered = filtered.filter(p => p.category === state.currentCategory);
     }
 
-    // 2. Фильтрация по поисковому запросу
-    const cleanSearch = appState.searchQuery.trim().toLowerCase();
-    if (cleanSearch !== '') {
-        filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(cleanSearch));
+    const query = state.searchQuery.trim().toLowerCase();
+    if (query) {
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(query));
     }
 
-    // Если товары не найдены, выводим сообщение один раз
-    if (filteredProducts.length === 0) {
-        container.innerHTML = `<div class="no-results">По вашему запросу ничего не найдено.</div>`;
-        return;
-    }
-
-    // Оптимизация: собираем всю разметку в одну большую строку в памяти перед вставкой в DOM
-    const gridHTML = filteredProducts.map(product => createProductCardHTML(product)).join('');
-    container.innerHTML = gridHTML;
+    container.innerHTML = filtered.length 
+        ? filtered.map(createProductCardHTML).join('') 
+        : `<div class="no-results">По вашему запросу ничего не найдено.</div>`;
 }
 
-// Функция смены категорий
+// Переключение вкладок меню
 function changeCategory(category) {
-    appState.currentCategory = category;
-    appState.searchQuery = ''; // Сброс поиска
+    if (state.currentCategory === category && !state.searchQuery) return;
+
+    state.currentCategory = category;
+    state.searchQuery = '';
     
     const searchInput = document.getElementById('search-input');
     if (searchInput) searchInput.value = '';
 
-    // Обновляем визуальное выделение активной вкладки
     document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
-    const activeNav = document.getElementById(`nav-${category}`);
-    if (activeNav) activeNav.classList.add('active');
+    document.getElementById(`nav-${category}`)?.classList.add('active');
 
-    // Логика обновления заголовка
     const titles = { 'all': 'Все товары', 'shoes': 'Обувь', 'clothes': 'Одежда', 'jeans': 'Джинсы' };
-    const pageTitle = document.getElementById('page-title');
-    if (pageTitle) pageTitle.textContent = titles[category] || 'Товары';
+    const titlePage = document.getElementById('page-title');
+    if (titlePage) titlePage.textContent = titles[category] || 'Товары';
 
     renderProducts();
 }
 
-// Оптимизатор функций (Debounce) — предотвращает лаги при очень быстром вводе букв в поиск
-function debounce(func, delay = 200) {
-    let timeoutId;
-    return function (...args) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => func.apply(this, args), delay);
+// Задержка поиска против фризов (Debounce)
+function debounce(func, timeout = 150) {
+    let timer;
+    return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => func.apply(this, args), timeout);
     };
 }
 
-// Обработчик ввода в поисковую строку с встроенным дебаунсом
-const handleSearch = debounce(() => {
-    const searchInput = document.getElementById('search-input');
-    if (searchInput) {
-        appState.searchQuery = searchInput.value;
-        renderProducts();
+// Открытие окна заказа
+function openOrderModal(productId) {
+    const product = PRODUCTS_DATA.find(p => p.id === productId);
+    if (!product) return;
+    
+    if (!isProductInStock(product)) {
+        alert("Этого товара сейчас нет в наличии!");
+        return;
     }
-});
 
-// Инициализация приложения после полной загрузки документа DOM
+    state.currentProduct = product;
+    state.selectedSize = null;
+
+    const modalName = document.getElementById('modal-product-name');
+    const modalPrice = document.getElementById('modal-product-price');
+    const sizesContainer = document.getElementById('modal-sizes-container');
+    const modalOverlay = document.getElementById('order-modal');
+
+    if (modalName) modalName.textContent = product.name;
+    if (modalPrice) modalPrice.textContent = product.price;
+    if (!sizesContainer || !modalOverlay) return;
+
+    sizesContainer.innerHTML = '';
+
+    Object.entries(product.sizes).forEach(([size, quantity]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'size-btn';
+        btn.textContent = size;
+
+        if (quantity <= 0) {
+            btn.classList.add('disabled');
+            btn.disabled = true;
+        } else {
+            btn.onclick = () => {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                state.selectedSize = size;
+                
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => btn.style.transform = 'none', 80);
+            };
+        }
+        sizesContainer.appendChild(btn);
+    });
+
+    modalOverlay.classList.add('active');
+}
+
+// Сброс и закрытие модального окна
+function closeOrderModal() {
+    const modalOverlay = document.getElementById('order-modal');
+    const orderForm = document.getElementById('order-form');
+    
+    if (modalOverlay) modalOverlay.classList.remove('active');
+    if (orderForm) orderForm.reset();
+    
+    state.selectedSize = null;
+    state.currentProduct = null;
+}
+
+// Запуск после загрузки DOM страницы
 document.addEventListener('DOMContentLoaded', () => {
     renderProducts();
     
-    // Привязываем обработчики событий динамически (убираем inline onClick из разметки для чистоты HTML)
     const searchInput = document.getElementById('search-input');
     if (searchInput) {
-        searchInput.addEventListener('input', handleSearch);
+        searchInput.addEventListener('input', debounce((e) => {
+            state.searchQuery = e.target.value;
+            renderProducts();
+        }));
     }
+
+    // ОТПРАВКА В TELEGRAM
+    document.getElementById('order-form')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        if (!state.selectedSize) {
+            alert("Пожалуйста, выберите ваш размер перед подтверждением заказа!");
+            return;
+        }
+
+        if (!state.currentProduct) {
+            alert("Произошла системная ошибка. Попробуйте открыть окно товара заново.");
+            closeOrderModal();
+            return;
+        }
+
+        const clientName = document.getElementById('client-name')?.value.trim();
+        const clientContact = document.getElementById('client-contact')?.value.trim();
+        const clientAddress = document.getElementById('client-address')?.value.trim();
+
+        if (!clientName || !clientContact || !clientAddress) {
+            alert("Заполните все текстовые поля корректно!");
+            return;
+        }
+
+        // ТВОИ КЛЮЧИ ТЕЛЕГРАМ АВТОМАТИЧЕСКИ ИНТЕГРИРОВАНЫ СЮДА:
+        const botToken = "8918446220:AAHVN891CgnGYXmJcqZCmKF_QKteN0LCTK8";
+        const chatId = "320554605"; 
+
+        // Оформление текста сообщения для бота
+        const message = `
+🛍️ <b>НОВЫЙ ЗАКАЗ [TDK_SHOES]</b>
+
+👟 <b>Товар:</b> ${state.currentProduct.name}
+📏 <b>Размер:</b> ${state.selectedSize}
+💰 <b>Цена:</b> ${state.currentProduct.price}
+
+👤 <b>Покупатель:</b> ${clientName}
+📞 <b>Контакты:</b> ${clientContact}
+📍 <b>Адрес:</b> ${clientAddress}
+        `.trim();
+
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+
+        // Отправка данных на сервера Telegram
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: chatId,
+                text: message,
+                parse_mode: 'HTML'
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                alert(`Успешно оформлено! ✅\n\nВаш заказ мгновенно отправлен администрации TDK_SHOES.\nМы свяжемся с вами по контакту: ${clientContact}`);
+            } else {
+                alert("Ошибка отправки заказа боту. Пожалуйста, напишите нам в личные сообщения напрямую.");
+            }
+            closeOrderModal();
+        })
+        .catch(error => {
+            console.error("Ошибка:", error);
+            alert("Ошибка сети. Пожалуйста, проверьте подключение к интернету.");
+        });
+    });
 });

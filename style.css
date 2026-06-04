@@ -1,0 +1,353 @@
+/* ==========================================================================
+   ГЛОБАЛЬНЫЕ НАСТРОЙКИ (СТИЛЬ ЛЮКС)
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Times New Roman', Times, serif, sans-serif; /* Для логотипов и заголовков */
+}
+
+body {
+    background-color: #ffffff;
+    color: #000000;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 1. Верхняя инфо-панель */
+.top-promo-bar {
+    background-color: #000000;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 400;
+    text-align: center;
+    padding: 10px 10px;
+    letter-spacing: 2px;
+}
+
+/* 2. Шапка в стиле VITKAC */
+header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e5e5;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+}
+
+/* Навигация слева */
+.sub-nav ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+.sub-nav a {
+    text-decoration: none;
+    color: #000000;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    transition: opacity 0.2s;
+}
+
+.sub-nav a:hover, .sub-nav a.active {
+    opacity: 0.5;
+}
+
+/* Логотип по центру */
+.main-logo {
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: 5px;
+    cursor: pointer;
+    text-align: center;
+    user-select: none;
+}
+
+.main-logo span {
+    color: #777;
+}
+
+/* Правая сторона шапки */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.search-box input {
+    border: none;
+    border-bottom: 1px solid #cccccc;
+    padding: 6px 0;
+    font-size: 13px;
+    outline: none;
+    width: 180px;
+    transition: width 0.3s;
+}
+
+.search-box input:focus {
+    width: 240px;
+    border-color: #000000;
+}
+
+.header-icons {
+    display: flex;
+    gap: 15px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.header-icons small {
+    font-size: 10px;
+    background: #000;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 50%;
+    vertical-align: top;
+}
+
+/* ==========================================================================
+   3. КРУПНЫЕ БАННЕРЫ С КАТЕГОРИЯМИ (Как в 2026-06-04 (18).jpg)
+   ========================================================================== */
+.hero-banners {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    height: 480px;
+    background-color: #f7f7f7;
+}
+
+.banner-box {
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Симуляция премиум моделей на фоне за счет красивых градиент-заглушек */
+.male-banner {
+    background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.25)), url('https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000&auto=format&fit=crop');
+}
+
+.female-banner {
+    background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.25)), url('https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1000&auto=format&fit=crop');
+}
+
+.banner-overlay {
+    text-align: center;
+    color: #ffffff;
+    z-index: 2;
+    transition: transform 0.4s;
+}
+
+.banner-box:hover .banner-overlay {
+    transform: scale(1.05);
+}
+
+.banner-overlay h2 {
+    font-size: 42px;
+    font-weight: 400;
+    letter-spacing: 8px;
+    margin-bottom: 10px;
+}
+
+.banner-overlay span {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border-bottom: 1px solid #fff;
+    padding-bottom: 4px;
+    font-family: sans-serif;
+}
+
+/* ==========================================================================
+   4. КАТАЛОГ И КАРТОЧКИ В СТИЛЕ BALENCIAGA (2026-06-04 (19).jpg)
+   ========================================================================== */
+main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 60px 40px;
+}
+
+.catalog-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.catalog-header h1 {
+    font-size: 36px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    margin-bottom: 10px;
+}
+
+.catalog-subtitle {
+    font-size: 14px;
+    color: #777777;
+    letter-spacing: 1px;
+}
+
+/* Сетка высокой моды */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 50px 30px;
+}
+
+/* Карточки без обводки, только чистый визуал */
+.product-card {
+    background-color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.product-image-wrapper {
+    width: 100%;
+    aspect-ratio: 3 / 4; /* Вытянутые люксовые пропорции */
+    background-color: #f2f2f3; /* Идентичный серый фон из Vitkac */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Крутой геометрический абстрактный силуэт вместо картинок, чтобы вещь выглядела дорого */
+.product-logo-bg {
+    width: 160px;
+    height: 200px;
+    background: #e4e4e5;
+    border-radius: 4px;
+    position: relative;
+    transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-logo-bg {
+    transform: scale(1.03);
+}
+
+/* Текстовый блок под вещью */
+.product-info {
+    padding-top: 15px;
+    text-align: center;
+}
+
+.product-name {
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #000000;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-meta {
+    font-size: 14px;
+    font-weight: 400;
+    color: #000000;
+}
+
+.availability-badge {
+    display: block;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 5px;
+    font-weight: bold;
+}
+.status-in-stock { color: #555; }
+.status-out-stock { color: #999; text-decoration: line-through; }
+
+/* ==========================================================================
+   5. МИНИМАЛИСТИЧНОЕ ОКНО ОФОРМЛЕНИЯ
+   ========================================================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.2);
+    backdrop-filter: blur(8px);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 2000; opacity: 0; pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+.modal-content {
+    background: #ffffff;
+    width: 100%;
+    max-width: 440px;
+    padding: 40px;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.modal-close {
+    position: absolute; top: 20px; right: 20px;
+    background: none; border: none; font-size: 28px; cursor: pointer; color: #aaa;
+}
+
+.modal-badge { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #888; display: block; margin-bottom: 10px; }
+.modal-title { font-size: 24px; font-weight: 400; letter-spacing: 1px; margin-bottom: 5px; }
+.modal-price { font-size: 16px; font-weight: 700; margin-bottom: 30px; }
+
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 8px; }
+.form-group input {
+    width: 100%; padding: 12px 0; border: none; border-bottom: 1px solid #ccc; font-size: 14px; outline: none; background: transparent;
+}
+.form-group input:focus { border-color: #000; }
+
+.sizes-selector { display: flex; gap: 8px; flex-wrap: wrap; }
+.size-btn {
+    border: 1px solid #ccc; background: #fff; padding: 8px 14px; font-size: 12px; cursor: pointer;
+}
+.size-btn.selected { background: #000; color: #fff; border-color: #000; }
+.size-btn.disabled { opacity: 0.2; text-decoration: line-through; cursor: not-allowed; }
+
+.submit-btn {
+    width: 100%; background: #000000; color: #ffffff; border: none; padding: 16px;
+    font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; margin-top: 20px;
+    transition: background 0.2s;
+}
+.submit-btn:hover { background: #333333; }
+
+/* ==========================================================================
+   6. ПОДВАЛ И АДАПТИВНОСТЬ
+   ========================================================================== */
+footer { background: #000000; color: #ffffff; padding: 50px 40px 20px; }
+.footer-container { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 30px; }
+.footer-section h3 { font-size: 14px; letter-spacing: 2px; margin-bottom: 15px; font-weight: 400; }
+.footer-section p { font-size: 12px; color: #ccc; line-height: 1.8; }
+.footer-bottom { border-top: 1px solid #222; margin-top: 40px; padding-top: 20px; text-align: center; font-size: 11px; color: #777; }
+
+@media (max-width: 768px) {
+    .header-container { flex-direction: column; gap: 15px; padding: 15px; }
+    .sub-nav ul { gap: 12px; }
+    .hero-banners { grid-template-columns: 1fr; height: 350px; }
+    .products-grid { grid-template-columns: 1fr 1fr; gap: 20px 10px; }
+    main { padding: 30px 15px; }
+    .catalog-header h1 { font-size: 26px; }
+    .product-logo-bg { width: 100px; height: 130px; }
+}

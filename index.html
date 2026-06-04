@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDK_SHOES — Магазин одежды и обуви</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-wrapper" onclick="changeCategory('all')">
+                <div class="logo-circle"></div>
+                <span class="logo-text">TDK_SHOES</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#" id="nav-all" class="active" onclick="changeCategory('all')">Все</a></li>
+                    <li><a href="#" id="nav-shoes" onclick="changeCategory('shoes')">Обувь</a></li>
+                    <li><a href="#" id="nav-clothes" onclick="changeCategory('clothes')">Одежда</a></li>
+                    <li><a href="#" id="nav-jeans" onclick="changeCategory('jeans')">Джинсы</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="category-panel">
+            <h1 class="category-title" id="page-title">Все товары</h1>
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" class="search-input" placeholder="Поиск модели, бренда или вещи..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="products-grid" id="products-container">
+            </div>
+    </main>
+
+    <div id="order-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeOrderModal()">&times;</button>
+            <div class="modal-body">
+                <span class="modal-badge">Оформление заказа</span>
+                <h2 id="modal-product-name" class="modal-title">Название товара</h2>
+                <p id="modal-product-price" class="modal-price">0 ₸</p>
+                
+                <form id="order-form">
+                    <div class="form-group">
+                        <label>Выберите доступный размер:</label>
+                        <div id="modal-sizes-container" class="sizes-selector"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="client-name">Ваше имя и фамилия</label>
+                        <input type="text" id="client-name" required placeholder="Например, Арман">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="client-contact">Телефон или Telegram</label>
+                        <input type="text" id="client-contact" required placeholder="+7 (7xx) xxx-xx-xx или @username">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="client-address">Адрес доставки (Город, улица, дом)</label>
+                        <input type="text" id="client-address" required placeholder="г. Талдыкорган, ул. Толе би, дом 10">
+                    </div>
+
+                    <button type="submit" class="submit-btn">Подтвердить заказ в ₸</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>TDK_SHOES</h3>
+                <p>Твой гид в мире уличной моды и оригинальной обуви.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Контакты</h3>
+                <p>📞 Тел/WhatsApp: +7 (777) 244-07-67</p>
+                <p>💬 Telegram: @New_Tdk_Shoes</p>
+            </div>
+            <div class="footer-section">
+                <h3>Наш адрес</h3>
+                <p>📍 Казахстан, г. Талдыкорган</p>
+                <p>🕒 График работы: с 10:00 до 21:00</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 TDK_SHOES. Все права защищены.
+        </div>
+    </footer>
+
+    <script>
+        "use strict";
+
+        // БАЗА ДАННЫХ (Цены изменены в Тенге ₸)
+        const PRODUCTS_DATA = [
+            {
+                id: 1,
+                name: "Кроссовки Street Air S1 Black",
+                category: "shoes",
+                price: "45,000 ₸",
+                sizes: { "41": 2, "42": 5, "43": 1 }
+            },
+            {
+                id: 2,
+                name: "Оверсайз худи TDK Cargo",
+                category: "clothes",
+                price: "18,500 ₸",
+                sizes: { "S": 3, "M": 4, "L": 0 }
+            },
+            {
+                id: 3,
+                name: "Джинсы Прямого Кроя Light Denim",
+                category: "jeans",
+                price: "24,000 ₸",
+                sizes: { "30": 0, "32": 0, "34": 0 } // Нет в наличии
+            },
+            {
+                id: 4,
+                name: "Кеды Classic Custom Orange",
+                category: "shoes",
+                price: "38,000 ₸",
+                sizes: { "40": 1, "41": 4, "42": 0 }
+            },
+            {
+                id: 5,
+                name: "Футболка Basic Heavyweight White",
+                category: "clothes",
+                price: "9,900 ₸",
+                sizes: { "M": 6, "L": 3 }
+            },
+            {
+                id: 6,
+                name: "Джинсы Черные Graphite Slim",
+                category: "jeans",
+                price: "26,500 ₸",
+                sizes: { "31": 1, "32": 2, "33": 0 }
+            }
+        ];
+
+        const appState = {
+            currentCategory: 'all',
+            searchQuery: ''
+        };
+
+        let selectedSize = null;
+        let currentProductToOrder = null;
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
+        }
+
+        function checkInStock(product) {
+            return Object.values(product.sizes).some(quantity => quantity > 0);
+        }
+
+        function createProductCardHTML(product) {
+            const inStock = checkInStock(product);
+            const statusClass = inStock ? 'status-in-stock' : 'status-out-stock';
+            const statusText = inStock ? 'В наличии' : 'Ожидается';
+            const cardClass = inStock ? 'product-card' : 'product-card out-of-stock';
+
+            return `
+                <div class="${cardClass}" onclick="openOrderModal(${product.id})">
+                    <div class="product-image-wrapper">
+                        <div class="product-logo-bg"></div>
+                    </div>
+                    <div class="product-info">
+                        <span class="product-name">${escapeHTML(product.name)}</span>
+                        <div class="product-meta">
+                            <span class="product-price">${escapeHTML(product.price)}</span>
+                            <span class="availability-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('products-container');
+            if (!container) return;
+
+            let filteredProducts = PRODUCTS_DATA;
+            if (appState.currentCategory !== 'all') {
+                filteredProducts = PRODUCTS_DATA.filter(p => p.category === appState.currentCategory);
+            }
+
+            const cleanSearch = appState.searchQuery.trim().toLowerCase();
+            if (cleanSearch !== '') {
+                filteredProducts = filteredProducts.filter(p => p.name.toLowerCase().includes(cleanSearch));
+            }
+
+            if (filteredProducts.length === 0) {
+                container.innerHTML = `<div class="no-results">По вашему запросу ничего не найдено в разделе.</div>`;
+                return;
+            }
+
+            container.innerHTML = filteredProducts.map(product => createProductCardHTML(product)).join('');
+        }
+
+        function changeCategory(category) {
+            appState.currentCategory = category;
+            appState.searchQuery = '';
+            
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.value = '';
+
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            const activeNav = document.getElementById(`nav-${category}`);
+            if (activeNav) activeNav.classList.add('active');
+
+            const titles = { 'all': 'Все товары', 'shoes': 'Обувь', 'clothes': 'Одежда', 'jeans': 'Джинсы' };
+            document.getElementById('page-title').textContent = titles[category] || 'Товары';
+
+            renderProducts();
+        }
+
+        function debounce(func, delay = 150) {
+            let timeoutId;
+            return function (...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
+        const handleSearch = debounce(() => {
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                appState.searchQuery = searchInput.value;
+                renderProducts();
+            }
+        });
+
+        function openOrderModal(productId) {
+            const product = PRODUCTS_DATA.find(p => p.id === productId);
+            if (!product) return;
+            
+            if (!checkInStock(product)) {
+                alert("Этого товара сейчас нет в наличии. Зайдите позже!");
+                return;
+            }
+
+            currentProductToOrder = product;
+            selectedSize = null;
+
+            document.getElementById('modal-product-name').textContent = product.name;
+            document.getElementById('modal-product-price').textContent = product.price;
+
+            const sizesContainer = document.getElementById('modal-sizes-container');
+            sizesContainer.innerHTML = '';
+
+            Object.keys(product.sizes).forEach(size => {
+                const count = product.sizes[size];
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'size-btn';
+                btn.textContent = size;
+
+                if (count === 0) {
+                    btn.classList.add('disabled');
+                    btn.disabled = true;
+                } else {
+                    btn.onclick = () => {
+                        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                        selectedSize = size;
+                    };
+                }
+                sizesContainer.appendChild(btn);
+            });
+
+            document.getElementById('order-modal').classList.add('active');
+        }
+
+        function closeOrderModal() {
+            document.getElementById('order-modal').classList.remove('active');
+            document.getElementById('order-form').reset();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderProducts();
+            
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) searchInput.addEventListener('input', handleSearch);
+
+            document.getElementById('order-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!selectedSize) {
+                    alert("Пожалуйста, выберите ваш размер одежды/обуви!");
+                    return;
+                }
+                const name = document.getElementById('client-name').value;
+                const contact = document.getElementById('client-contact').value;
+                const address = document.getElementById('client-address').value;
+
+                alert(`Успешно оформлено! ✅\n\nТовар: ${currentProductToOrder.name}\nРазмер: ${selectedSize}\nЦена: ${currentProductToOrder.price}\n\nМенеджер TDK_SHOES свяжется с вами по контакту: ${contact}\nДоставка будет оформлена на адрес: ${address}`);
+                closeOrderModal();
+            });
+        });
+    </script>
+</body>
+</html>
